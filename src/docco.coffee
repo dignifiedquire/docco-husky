@@ -125,7 +125,7 @@ parse = (source, code) ->
 
 # Highlights a single chunk of CoffeeScript code, using **Pygments** over stdio,
 # and runs the text of its corresponding comment through **Markdown**, using
-# [Showdown.js](http://attacklab.net/showdown/).
+# [marked](https://github.com/chjj/marked).
 #
 # We process the entire file in a single call to Pygments by inserting little
 # marker comments between each section and then splitting the result string
@@ -247,7 +247,7 @@ write_file = (dest, contents) ->
 # Parse a markdown file and return the HTML 
 parse_markdown = (context, src) ->
   markdown = fs.readFileSync(src).toString()
-  return showdown.makeHtml markdown
+  return marked markdown
 
 cloc = (paths, callback) ->
   exec "'#{__dirname}/../vendor/cloc.pl' --quiet --read-lang-def='#{__dirname}/../resources/cloc_definitions.txt' #{paths}", (err, stdout) ->
@@ -260,13 +260,25 @@ cloc = (paths, callback) ->
 # (the JavaScript implementation of Markdown).
 fs       = require 'fs'
 path     = require 'path'
-showdown = require('./../vendor/showdown').Showdown
+marked   = require 'marked'
 jade     = require 'jade'
 dox      = require 'dox'
 gravatar = require 'gravatar'
 _        = require 'underscore'
 walk     = require 'walk'
 {spawn, exec} = require 'child_process'
+highlight = require 'highlight.js'
+
+# configure **highlight.js**
+highlight.tabReplace = '  '
+
+# configure **marked**
+marked.setOptions
+  gfm: true
+  pedantic: false
+  sanitize: true
+  highlight: highlight
+
 
 # A list of the languages that Docco supports, mapping the file extension to
 # the name of the Pygments lexer and the symbol that indicates a comment. To
